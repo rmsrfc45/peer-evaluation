@@ -372,6 +372,8 @@ function buildMemberEval(myGroup, myIdx) {
   });
 }
 
+var SHEET_URL = "https://script.google.com/a/macros/hanyang.ac.kr/s/AKfycbydjdlOLStrl4pG6vr6-Hs7SegW4joHYYFJ-KK16FPbjKGkAlOIaNO1O10gqT6BNZh5/exec";
+
 function submitEval() {
   var name = cur.name, group = cur.group, memberIdx = cur.memberIdx;
   var row = { Name: name, Team: group + '조' };
@@ -399,11 +401,23 @@ function submitEval() {
   if (!valid) return;
   row['SubmittedAt'] = new Date().toLocaleString('ko-KR');
   allResponses.push(row);
-  document.getElementById('done-desc').textContent  = tf('done_desc', name, group);
-  document.getElementById('done-count').textContent = tf('done_count', allResponses.length);
-  document.getElementById('step-eval').classList.remove('active');
-  document.getElementById('step-done').classList.add('active');
-  window.scrollTo(0, 0);
+
+  var btn = document.querySelector('#step-eval .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = '제출 중...'; }
+
+  fetch(SHEET_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(row)
+  }).catch(function() {}).finally(function() {
+    if (btn) { btn.disabled = false; btn.textContent = tf('btn_submit'); }
+    document.getElementById('done-desc').textContent  = tf('done_desc', name, group);
+    document.getElementById('done-count').textContent = tf('done_count', allResponses.length);
+    document.getElementById('step-eval').classList.remove('active');
+    document.getElementById('step-done').classList.add('active');
+    window.scrollTo(0, 0);
+  });
 }
 
 function downloadCSV() {
