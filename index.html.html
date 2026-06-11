@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>상호평가 / Peer Evaluation / 互评问卷</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f8f8f6; --surface: #ffffff; --border: #e4e3de; --border-strong: #c8c7c0;
+    --text-primary: #1a1a18; --text-secondary: #6b6a65; --text-hint: #a09f99;
+    --accent: #2d5a8e; --accent-light: #e8f0f9;
+    --danger: #c0392b; --success-light: #eaf4ee;
+    --radius: 10px; --radius-sm: 6px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 0.5px rgba(0,0,0,0.06);
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 2rem 1rem 4rem; }
+  .page { max-width: 600px; margin: 0 auto; }
+  .lang-bar { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+  .lang-btn { padding: 5px 14px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text-secondary); font-size: 13px; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+  .lang-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .header { margin-bottom: 2rem; }
+  .header-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+  h1 { font-size: 24px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+  .header-desc { font-size: 14px; color: var(--text-secondary); margin-top: 0.4rem; }
+  .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-hint); margin-bottom: 1rem; }
+  .field { margin-bottom: 1rem; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 5px; }
+  input[type=number], select { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text-primary); font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.15s; appearance: none; }
+  input[type=number]:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,90,142,0.1); }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6a65' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+  .confirm-box { background: var(--accent-light); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--accent); margin-top: 0.5rem; display: none; line-height: 1.6; }
+  .error-msg { font-size: 12px; color: var(--danger); margin-top: 4px; display: none; }
+  .group-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem 1.5rem; margin-bottom: 0.75rem; }
+  .group-card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .group-card-members { font-size: 12px; color: var(--text-hint); margin-bottom: 1rem; }
+  .score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .score-name { flex: 1; font-size: 13px; color: var(--text-secondary); }
+  .score-max { font-size: 12px; color: var(--text-hint); min-width: 36px; text-align: right; }
+  .score-input { width: 68px !important; height: 36px !important; text-align: center; font-weight: 500; }
+  .member-row { display: flex; align-items: center; gap: 12px; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+  .member-row:last-child { border-bottom: none; }
+  .member-info { flex: 1; }
+  .member-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .member-dept { font-size: 12px; color: var(--text-hint); margin-top: 2px; }
+  .btn-primary { width: 100%; height: 46px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; margin-top: 1.25rem; transition: opacity 0.15s, transform 0.1s; }
+  .btn-primary:hover { opacity: 0.92; }
+  .btn-primary:active { transform: scale(0.99); }
+  .btn-secondary { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); color: var(--text-primary); font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; margin-top: 0.75rem; width: 100%; justify-content: center; transition: background 0.15s; }
+  .btn-secondary:hover { background: var(--bg); }
+  .section-heading { font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 1.75rem 0 0.75rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 999px; background: var(--accent-light); color: var(--accent); }
+  .step { display: none; }
+  .step.active { display: block; }
+  .success-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2.5rem 1.5rem; text-align: center; }
+  .success-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--success-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 26px; }
+  .success-title { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 0.4rem; }
+  .success-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 0.25rem; }
+  .response-count { font-size: 13px; color: var(--text-hint); margin-bottom: 1.5rem; }
+  .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+  @media (max-width: 480px) { body { padding: 1rem 0.75rem 3rem; } .group-card, .card { padding: 1rem 1.1rem; } h1 { font-size: 20px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="lang-bar">
+    <button class="lang-btn active" onclick="setLang('ko')">한국어</button>
+    <button class="lang-btn" onclick="setLang('en')">English</button>
+    <button class="lang-btn" onclick="setLang('zh')">中文</button>
+  </div>
+
+  <div id="step-info" class="step active">
+    <div class="header">
+      <div class="header-label" data-i18n="semester"></div>
+      <h1 data-i18n="title"></h1>
+      <p class="header-desc" data-i18n="intro_desc"></p>
+    </div>
+    <div class="card">
+      <div class="section-label" data-i18n="my_info"></div>
+      <div class="field">
+        <label for="sel-group" data-i18n="label_group"></label>
+        <select id="sel-group" onchange="onGroupChange()">
+          <option value="" data-i18n-opt="select_group"></option>
+          <option value="1">Team 1 (1조)</option><option value="2">Team 2 (2조)</option>
+          <option value="3">Team 3 (3조)</option><option value="4">Team 4 (4조)</option>
+          <option value="5">Team 5 (5조)</option><option value="6">Team 6 (6조)</option>
+          <option value="7">Team 7 (7조)</option><option value="8">Team 8 (8조)</option>
+          <option value="9">Team 9 (9조)</option><option value="10">Team 10 (10조)</option>
+        </select>
+        <div class="error-msg" id="err-group" data-i18n="err_group"></div>
+      </div>
+      <div class="field">
+        <label for="sel-member" data-i18n="label_member"></label>
+        <select id="sel-member" onchange="onMemberChange()">
+          <option value="" data-i18n-opt="select_group_first"></option>
+        </select>
+        <div class="error-msg" id="err-member" data-i18n="err_member"></div>
+        <div class="confirm-box" id="confirm-box"></div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="goToEval()" data-i18n="btn_start"></button>
+  </div>
+
+  <div id="step-eval" class="step">
+    <div class="header">
+      <div class="header-label" id="eval-label"></div>
+      <h1 data-i18n="eval_title"></h1>
+      <p class="header-desc" id="eval-desc"></p>
+    </div>
+    <div class="section-heading">
+      <span data-i18n="group_eval"></span>
+      <span class="badge" data-i18n="group_eval_badge"></span>
+    </div>
+    <div id="group-eval-area"></div>
+    <div class="section-heading" style="margin-top:2rem;">
+      <span data-i18n="member_eval"></span>
+      <span class="badge" data-i18n="member_eval_badge"></span>
+    </div>
+    <div class="card">
+      <div id="member-eval-area"></div>
+    </div>
+    <button class="btn-primary" onclick="submitEval()" data-i18n="btn_submit"></button>
+  </div>
+
+  <div id="step-done" class="step">
+    <div class="success-card">
+      <div class="success-icon">&#10003;</div>
+      <div class="success-title" data-i18n="done_title"></div>
+      <div class="success-desc" id="done-desc"></div>
+      <div class="response-count" id="done-count"></div>
+      <div class="divider"></div>
+      <button class="btn-secondary" onclick="downloadCSV()" data-i18n="btn_csv"></button>
+      <button class="btn-secondary" onclick="resetForm()" data-i18n="btn_next"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+var I18N = {
+  ko: {
+    semester: '2026년 1학기',
+    title: '팀 프로젝트 상호평가',
+    intro_desc: '조와 본인 이름을 선택하면 평가 대상이 자동으로 구성됩니다.',
+    my_info: '본인 정보',
+    label_group: '조 선택',
+    select_group: '조를 선택하세요',
+    select_group_first: '조를 먼저 선택하세요',
+    label_member: '본인 이름 확인',
+    err_group: '조를 선택해주세요.',
+    err_member: '본인 이름을 선택해주세요.',
+    btn_start: '평가 시작 →',
+    eval_title: '상호평가',
+    group_eval: '조 상호평가',
+    group_eval_badge: '작동가능성 3 · 완성도 4 · 창의성 3',
+    member_eval: '팀원 상호평가',
+    member_eval_badge: '10점 만점',
+    c1: '작동가능성', c2: '완성도', c3: '창의성',
+    btn_submit: '제출하기',
+    done_title: '제출 완료',
+    btn_csv: '⬇ 전체 응답 CSV 다운로드',
+    btn_next: '↺ 다음 사람 평가하기',
+    team_label: function(g) { return g + '조'; },
+    eval_desc: function(name) { return name + '님의 평가지입니다. 모든 항목을 빠짐없이 입력해주세요.'; },
+    confirm: function(name, g, teammates) { return '<strong>' + name + '</strong>님은 <strong>' + g + '조</strong>입니다.<br>팀원 평가 대상: ' + teammates; },
+    done_desc: function(name, g) { return name + ' (' + g + '조) 평가가 완료되었습니다.'; },
+    done_count: function(n) { return '현재까지 총 ' + n + '명 제출'; },
+    alert_score: function(g) { return g + '조 점수를 올바르게 입력해주세요.\n작동가능성 0~3 / 완성도 0~4 / 창의성 0~3'; },
+    alert_member: function(name) { return name + ' 점수를 올바르게 입력해주세요. (0~10)'; },
+    alert_no_data: '제출된 응답이 없습니다.'
+  },
+  en: {
+    semester: '2026 Spring Semester',
+    title: 'Team Project Peer Evaluation',
+    intro_desc: 'Select your team and name to get your personalized evaluation form.',
+    my_info: 'Your Info',
+    label_group: 'Select Team',
+    select_group: 'Select your team',
+    select_group_first: 'Select a team first',
+    label_member: 'Confirm your name',
+    err_group: 'Please select your team.',
+    err_member: 'Please select your name.',
+    btn_start: 'Start Evaluation →',
+    eval_title: 'Peer Evaluation',
+    group_eval: 'Team Evaluation',
+    group_eval_badge: 'Functionality 3 · Completeness 4 · Creativity 3',
+    member_eval: 'Peer Member Evaluation',
+    member_eval_badge: 'out of 10',
+    c1: 'Functionality', c2: 'Completeness', c3: 'Creativity',
+    btn_submit: 'Submit',
+    done_title: 'Submitted!',
+    btn_csv: '⬇ Download CSV',
+    btn_next: '↺ Next Person',
+    team_label: function(g) { return 'Team ' + g; },
+    eval_desc: function(name) { return 'Evaluation form for ' + name + '. Please fill in all items.'; },
+    confirm: function(name, g, teammates) { return 'You are <strong>' + name + '</strong>, Team <strong>' + g + '</strong>.<br>Teammates to evaluate: ' + teammates; },
+    done_desc: function(name, g) { return name + ' (Team ' + g + ') evaluation complete.'; },
+    done_count: function(n) { return n + ' response(s) collected so far.'; },
+    alert_score: function(g) { return 'Please enter valid scores for Team ' + g + '.\nFunctionality 0-3 / Completeness 0-4 / Creativity 0-3'; },
+    alert_member: function(name) { return 'Please enter a valid score for ' + name + '. (0-10)'; },
+    alert_no_data: 'No responses yet.'
+  },
+  zh: {
+    semester: '2026年春季学期',
+    title: '团队项目互评问卷',
+    intro_desc: '请选择您的小组和姓名，系统将自动生成评分表。',
+    my_info: '个人信息',
+    label_group: '选择小组',
+    select_group: '请选择小组',
+    select_group_first: '请先选择小组',
+    label_member: '确认您的姓名',
+    err_group: '请选择小组。',
+    err_member: '请选择您的姓名。',
+    btn_start: '开始评分 →',
+    eval_title: '互评问卷',
+    group_eval: '小组互评',
+    group_eval_badge: '可运行性 3 · 完成度 4 · 创意性 3',
+    member_eval: '队员互评',
+    member_eval_badge: '满分 10 分',
+    c1: '可运行性', c2: '完成度', c3: '创意性',
+    btn_submit: '提交',
+    done_title: '提交成功',
+    btn_csv: '⬇ 下载 CSV 文件',
+    btn_next: '↺ 下一位同学',
+    team_label: function(g) { return '第 ' + g + ' 组'; },
+    eval_desc: function(name) { return '这是 ' + name + ' 的评分表，请填写所有项目。'; },
+    confirm: function(name, g, teammates) { return '您是第 <strong>' + g + '</strong> 组的 <strong>' + name + '</strong>。<br>需评价的队友：' + teammates; },
+    done_desc: function(name, g) { return name + '（第 ' + g + ' 组）评分已完成。'; },
+    done_count: function(n) { return '目前共收到 ' + n + ' 份问卷。'; },
+    alert_score: function(g) { return '请正确填写第 ' + g + ' 组的分数。\n可运行性 0~3 / 完成度 0~4 / 创意性 0~3'; },
+    alert_member: function(name) { return '请正确填写 ' + name + ' 的分数（0~10）。'; },
+    alert_no_data: '暂无提交记录。'
+  }
+};
+
+var GROUPS = {
+  1: [{name:"남경민",dept:"로봇공학과"},{name:"양혁주",dept:"기계공학과"},{name:"이수아",dept:"배터리소재화학공학과"},{name:"한연우",dept:"일본학과"}],
+  2: [{name:"공유진",dept:"기계공학과"},{name:"양형진",dept:"기계공학과"},{name:"이승진",dept:"컴퓨터학부"},{name:"조수빈",dept:"미디어테크놀로지전공"}],
+  3: [{name:"김민",dept:"융합디자인학부"},{name:"나강혁",dept:"기계공학과"},{name:"장지원",dept:"로봇공학과"},{name:"정동명",dept:"인공지능학과"}],
+  4: [{name:"김현우",dept:"기계공학과"},{name:"방우기",dept:"경영학부"},{name:"유명조",dept:"글로벌문화통상학부"},{name:"이예준",dept:"건축공학전공"}],
+  5: [{name:"김은찬",dept:"기계공학과"},{name:"돌군",dept:"디자인테크놀로지전공"},{name:"이호준",dept:"기계공학과"},{name:"정우성",dept:"로봇공학과"}],
+  6: [{name:"박서연",dept:"기계공학과"},{name:"옥재원",dept:"융합디자인학부"},{name:"정재원",dept:"기계공학과"},{name:"정해흔",dept:"경영학부"}],
+  7: [{name:"안성희",dept:"융합디자인학부"},{name:"양월",dept:"주얼리·패션디자인학과"},{name:"이동헌",dept:"컴퓨터학부"},{name:"허준영",dept:"기계공학과"}],
+  8: [{name:"구재호",dept:"경영학부"},{name:"김민재",dept:"로봇공학과"},{name:"정수빈",dept:"로봇공학과"},{name:"황지수",dept:"기계공학과"}],
+  9: [{name:"민동후",dept:"기계공학과"},{name:"박혜원",dept:"재료화학공학과"},{name:"오원준",dept:"융합디자인학부"},{name:"임하민",dept:"경영학부"}],
+  10:[{name:"권순현",dept:"로봇공학과"},{name:"김희은",dept:"기계공학과"},{name:"오민진",dept:"건축학전공"},{name:"정영현",dept:"로봇공학과"}]
+};
+
+var lang = 'ko';
+var allResponses = [];
+var cur = {};
+
+function t(key) { return I18N[lang][key]; }
+function tf(key) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  var fn = I18N[lang][key];
+  return typeof fn === 'function' ? fn.apply(null, args) : fn;
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    var val = I18N[lang][key];
+    if (val !== undefined && typeof val !== 'function') el.innerHTML = val;
+  });
+  var sel = document.getElementById('sel-group');
+  if (sel && sel.options[0]) sel.options[0].text = t('select_group');
+  var selM = document.getElementById('sel-member');
+  if (selM && selM.options[0] && selM.options[0].value === '') selM.options[0].text = t('select_group_first');
+  document.querySelectorAll('.lang-btn').forEach(function(b, i) {
+    b.classList.toggle('active', ['ko','en','zh'][i] === lang);
+  });
+  var box = document.getElementById('confirm-box');
+  if (box.style.display !== 'none' && cur.name) {
+    var teammates = GROUPS[cur.group].filter(function(_,i){ return i !== cur.memberIdx; }).map(function(m){ return m.name; }).join(', ');
+    box.innerHTML = tf('confirm', cur.name, cur.group, teammates);
+  }
+}
+
+function setLang(l) {
+  lang = l;
+  applyLang();
+  if (document.getElementById('step-eval').classList.contains('active')) {
+    buildGroupEval(cur.group);
+    buildMemberEval(cur.group, cur.memberIdx);
+    document.getElementById('eval-desc').textContent = tf('eval_desc', cur.name);
+    document.getElementById('eval-label').textContent = tf('team_label', cur.group) + ' · ' + GROUPS[cur.group][cur.memberIdx].dept;
+  }
+}
+
+function onGroupChange() {
+  var g = parseInt(document.getElementById('sel-group').value);
+  var sel = document.getElementById('sel-member');
+  var box = document.getElementById('confirm-box');
+  sel.innerHTML = '<option value="">' + t('select_group_first') + '</option>';
+  box.style.display = 'none';
+  cur = {};
+  if (!g) return;
+  GROUPS[g].forEach(function(m, i) {
+    var o = document.createElement('option');
+    o.value = i; o.textContent = m.name + ' (' + m.dept + ')';
+    sel.appendChild(o);
+  });
+}
+
+function onMemberChange() {
+  var g = parseInt(document.getElementById('sel-group').value);
+  var mi = document.getElementById('sel-member').value;
+  var box = document.getElementById('confirm-box');
+  if (!g || mi === '') { box.style.display = 'none'; return; }
+  var idx = parseInt(mi);
+  var me = GROUPS[g][idx];
+  var teammates = GROUPS[g].filter(function(_,i){ return i !== idx; }).map(function(m){ return m.name; }).join(', ');
+  cur = { name: me.name, group: g, memberIdx: idx };
+  box.style.display = 'block';
+  box.innerHTML = tf('confirm', me.name, g, teammates);
+}
+
+function showErr(id, show) {
+  document.getElementById(id).style.display = show ? 'block' : 'none';
+}
+
+function goToEval() {
+  var g  = parseInt(document.getElementById('sel-group').value);
+  var mi = document.getElementById('sel-member').value;
+  var ok = true;
+  if (!g)      { showErr('err-group', true);  ok = false; } else showErr('err-group', false);
+  if (mi==='') { showErr('err-member', true); ok = false; } else showErr('err-member', false);
+  if (!ok) return;
+  var memberIdx = parseInt(mi);
+  cur = { name: GROUPS[g][memberIdx].name, group: g, memberIdx: memberIdx };
+  document.getElementById('eval-label').textContent = tf('team_label', g) + ' · ' + GROUPS[g][memberIdx].dept;
+  document.getElementById('eval-desc').textContent  = tf('eval_desc', cur.name);
+  buildGroupEval(g);
+  buildMemberEval(g, memberIdx);
+  document.getElementById('step-info').classList.remove('active');
+  document.getElementById('step-eval').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function buildGroupEval(myGroup) {
+  var area = document.getElementById('group-eval-area');
+  area.innerHTML = '';
+  for (var g = 1; g <= 10; g++) {
+    if (g === myGroup) continue;
+    var names = GROUPS[g].map(function(m){ return m.name; }).join(', ');
+    var card = document.createElement('div');
+    card.className = 'group-card';
+    card.innerHTML =
+      '<div class="group-card-title">' + tf('team_label', g) + '</div>' +
+      '<div class="group-card-members">' + names + '</div>' +
+      '<div class="score-row"><span class="score-name">' + t('c1') + '</span><span class="score-max">/ 3</span><input class="score-input" type="number" min="0" max="3" step="1" id="g'+g+'-op" placeholder="0~3"></div>' +
+      '<div class="score-row"><span class="score-name">' + t('c2') + '</span><span class="score-max">/ 4</span><input class="score-input" type="number" min="0" max="4" step="1" id="g'+g+'-comp" placeholder="0~4"></div>' +
+      '<div class="score-row"><span class="score-name">' + t('c3') + '</span><span class="score-max">/ 3</span><input class="score-input" type="number" min="0" max="3" step="1" id="g'+g+'-cr" placeholder="0~3"></div>';
+    area.appendChild(card);
+  }
+}
+
+function buildMemberEval(myGroup, myIdx) {
+  var area = document.getElementById('member-eval-area');
+  area.innerHTML = '';
+  GROUPS[myGroup].forEach(function(m, i) {
+    if (i === myIdx) return;
+    var row = document.createElement('div');
+    row.className = 'member-row';
+    row.innerHTML =
+      '<div class="member-info"><div class="member-name">' + m.name + '</div><div class="member-dept">' + m.dept + '</div></div>' +
+      '<span style="font-size:12px;color:var(--text-hint);">/ 10</span>' +
+      '<input class="score-input" type="number" min="0" max="10" step="1" id="m'+myGroup+'-'+i+'" placeholder="0~10">';
+    area.appendChild(row);
+  });
+}
+
+function submitEval() {
+  var name = cur.name, group = cur.group, memberIdx = cur.memberIdx;
+  var row = { Name: name, Team: group + '조' };
+  var valid = true;
+  for (var g = 1; g <= 10; g++) {
+    if (g === group) continue;
+    var v1 = parseFloat(document.getElementById('g'+g+'-op').value);
+    var v2 = parseFloat(document.getElementById('g'+g+'-comp').value);
+    var v3 = parseFloat(document.getElementById('g'+g+'-cr').value);
+    if (isNaN(v1)||v1<0||v1>3||isNaN(v2)||v2<0||v2>4||isNaN(v3)||v3<0||v3>3) {
+      alert(tf('alert_score', g)); valid = false; break;
+    }
+    row['Team'+g+'_Functionality(3)'] = v1;
+    row['Team'+g+'_Completeness(4)']  = v2;
+    row['Team'+g+'_Creativity(3)']    = v3;
+    row['Team'+g+'_Total(10)']        = v1 + v2 + v3;
+  }
+  if (!valid) return;
+  GROUPS[group].forEach(function(m, i) {
+    if (i === memberIdx) return;
+    var v = parseFloat(document.getElementById('m'+group+'-'+i).value);
+    if (isNaN(v)||v<0||v>10) { alert(tf('alert_member', m.name)); valid = false; }
+    else row['Peer_' + m.name + '(10)'] = v;
+  });
+  if (!valid) return;
+  row['SubmittedAt'] = new Date().toLocaleString('ko-KR');
+  allResponses.push(row);
+  document.getElementById('done-desc').textContent  = tf('done_desc', name, group);
+  document.getElementById('done-count').textContent = tf('done_count', allResponses.length);
+  document.getElementById('step-eval').classList.remove('active');
+  document.getElementById('step-done').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function downloadCSV() {
+  if (allResponses.length === 0) { alert(t('alert_no_data')); return; }
+  var keys = [];
+  allResponses.forEach(function(r) { Object.keys(r).forEach(function(k){ if (keys.indexOf(k)<0) keys.push(k); }); });
+  var lines = [keys.join(',')];
+  allResponses.forEach(function(r) {
+    lines.push(keys.map(function(k) {
+      var v = r[k] !== undefined ? String(r[k]) : '';
+      return v.indexOf(',') >= 0 ? '"' + v + '"' : v;
+    }).join(','));
+  });
+  var blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'peer_evaluation_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+function resetForm() {
+  cur = {};
+  document.getElementById('sel-group').value = '';
+  document.getElementById('sel-member').innerHTML = '<option value="">' + t('select_group_first') + '</option>';
+  document.getElementById('confirm-box').style.display = 'none';
+  document.getElementById('step-done').classList.remove('active');
+  document.getElementById('step-eval').classList.remove('active');
+  document.getElementById('step-info').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+applyLang();
+</script>
+</body>
+</html>
